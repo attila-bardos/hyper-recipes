@@ -1,0 +1,577 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9A4D5DB4189400230006728C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB3189400230006728C /* Foundation.framework */; };
+		9A4D5DB6189400230006728C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB5189400230006728C /* CoreGraphics.framework */; };
+		9A4D5DB8189400230006728C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB7189400230006728C /* UIKit.framework */; };
+		9A4D5DBA189400230006728C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB9189400230006728C /* CoreData.framework */; };
+		9A4D5DC0189400230006728C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5DBE189400230006728C /* InfoPlist.strings */; };
+		9A4D5DC2189400230006728C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DC1189400230006728C /* main.m */; };
+		9A4D5DC6189400230006728C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DC5189400230006728C /* AppDelegate.m */; };
+		9A4D5DC9189400230006728C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5DC7189400230006728C /* Main.storyboard */; };
+		9A4D5DCC189400230006728C /* HyperRecipes.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DCA189400230006728C /* HyperRecipes.xcdatamodeld */; };
+		9A4D5DCF189400230006728C /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DCE189400230006728C /* MasterViewController.m */; };
+		9A4D5DD2189400230006728C /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DD1189400230006728C /* DetailViewController.m */; };
+		9A4D5DD4189400230006728C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5DD3189400230006728C /* Images.xcassets */; };
+		9A4D5DDB189400230006728C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DDA189400230006728C /* XCTest.framework */; };
+		9A4D5DDC189400230006728C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB3189400230006728C /* Foundation.framework */; };
+		9A4D5DDD189400230006728C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB7189400230006728C /* UIKit.framework */; };
+		9A4D5DDE189400230006728C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A4D5DB9189400230006728C /* CoreData.framework */; };
+		9A4D5DE6189400230006728C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5DE4189400230006728C /* InfoPlist.strings */; };
+		9A4D5DE8189400230006728C /* HyperRecipesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DE7189400230006728C /* HyperRecipesTests.m */; };
+		9A4D5DF3189400E80006728C /* HyperClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DF2189400E80006728C /* HyperClient.m */; };
+		9A4D5DF6189401C10006728C /* Recipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DF5189401C10006728C /* Recipe.m */; };
+		9A4D5DFA1894030E0006728C /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4D5DF91894030E0006728C /* Utils.m */; };
+		E626E08E3A4A4BAB84E9FE90 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A09FE8596F8F46399D5FDCB1 /* libPods.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9A4D5DDF189400230006728C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9A4D5DA8189400230006728C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A4D5DAF189400230006728C;
+			remoteInfo = HyperRecipes;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		9A4D5DB0189400230006728C /* HyperRecipes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HyperRecipes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A4D5DB3189400230006728C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		9A4D5DB5189400230006728C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		9A4D5DB7189400230006728C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		9A4D5DB9189400230006728C /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		9A4D5DBD189400230006728C /* HyperRecipes-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HyperRecipes-Info.plist"; sourceTree = "<group>"; };
+		9A4D5DBF189400230006728C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9A4D5DC1189400230006728C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9A4D5DC3189400230006728C /* HyperRecipes-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HyperRecipes-Prefix.pch"; sourceTree = "<group>"; };
+		9A4D5DC4189400230006728C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		9A4D5DC5189400230006728C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		9A4D5DC8189400230006728C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		9A4D5DCB189400230006728C /* HyperRecipes.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = HyperRecipes.xcdatamodel; sourceTree = "<group>"; };
+		9A4D5DCD189400230006728C /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
+		9A4D5DCE189400230006728C /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
+		9A4D5DD0189400230006728C /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		9A4D5DD1189400230006728C /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		9A4D5DD3189400230006728C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		9A4D5DD9189400230006728C /* HyperRecipesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HyperRecipesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A4D5DDA189400230006728C /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		9A4D5DE3189400230006728C /* HyperRecipesTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "HyperRecipesTests-Info.plist"; sourceTree = "<group>"; };
+		9A4D5DE5189400230006728C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9A4D5DE7189400230006728C /* HyperRecipesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HyperRecipesTests.m; sourceTree = "<group>"; };
+		9A4D5DF1189400E80006728C /* HyperClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HyperClient.h; sourceTree = "<group>"; };
+		9A4D5DF2189400E80006728C /* HyperClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HyperClient.m; sourceTree = "<group>"; };
+		9A4D5DF4189401C10006728C /* Recipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recipe.h; sourceTree = "<group>"; };
+		9A4D5DF5189401C10006728C /* Recipe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Recipe.m; sourceTree = "<group>"; };
+		9A4D5DF81894030E0006728C /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		9A4D5DF91894030E0006728C /* Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
+		A09FE8596F8F46399D5FDCB1 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB04B0FFA85942F7A4956893 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9A4D5DAD189400230006728C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DB6189400230006728C /* CoreGraphics.framework in Frameworks */,
+				9A4D5DBA189400230006728C /* CoreData.framework in Frameworks */,
+				9A4D5DB8189400230006728C /* UIKit.framework in Frameworks */,
+				9A4D5DB4189400230006728C /* Foundation.framework in Frameworks */,
+				E626E08E3A4A4BAB84E9FE90 /* libPods.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A4D5DD6189400230006728C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DDB189400230006728C /* XCTest.framework in Frameworks */,
+				9A4D5DDE189400230006728C /* CoreData.framework in Frameworks */,
+				9A4D5DDD189400230006728C /* UIKit.framework in Frameworks */,
+				9A4D5DDC189400230006728C /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9A4D5DA7189400230006728C = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DBB189400230006728C /* HyperRecipes */,
+				9A4D5DE1189400230006728C /* HyperRecipesTests */,
+				9A4D5DB2189400230006728C /* Frameworks */,
+				9A4D5DB1189400230006728C /* Products */,
+				EB04B0FFA85942F7A4956893 /* Pods.xcconfig */,
+			);
+			sourceTree = "<group>";
+		};
+		9A4D5DB1189400230006728C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DB0189400230006728C /* HyperRecipes.app */,
+				9A4D5DD9189400230006728C /* HyperRecipesTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9A4D5DB2189400230006728C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DB3189400230006728C /* Foundation.framework */,
+				9A4D5DB5189400230006728C /* CoreGraphics.framework */,
+				9A4D5DB7189400230006728C /* UIKit.framework */,
+				9A4D5DB9189400230006728C /* CoreData.framework */,
+				9A4D5DDA189400230006728C /* XCTest.framework */,
+				A09FE8596F8F46399D5FDCB1 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9A4D5DBB189400230006728C /* HyperRecipes */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DC4189400230006728C /* AppDelegate.h */,
+				9A4D5DC5189400230006728C /* AppDelegate.m */,
+				9A4D5DC7189400230006728C /* Main.storyboard */,
+				9A4D5DCD189400230006728C /* MasterViewController.h */,
+				9A4D5DCE189400230006728C /* MasterViewController.m */,
+				9A4D5DD0189400230006728C /* DetailViewController.h */,
+				9A4D5DD1189400230006728C /* DetailViewController.m */,
+				9A4D5DD3189400230006728C /* Images.xcassets */,
+				9A4D5DCA189400230006728C /* HyperRecipes.xcdatamodeld */,
+				9A4D5DF1189400E80006728C /* HyperClient.h */,
+				9A4D5DF2189400E80006728C /* HyperClient.m */,
+				9A4D5DF81894030E0006728C /* Utils.h */,
+				9A4D5DF91894030E0006728C /* Utils.m */,
+				9A4D5DF71894022C0006728C /* Model */,
+				9A4D5DBC189400230006728C /* Supporting Files */,
+			);
+			path = HyperRecipes;
+			sourceTree = "<group>";
+		};
+		9A4D5DBC189400230006728C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DBD189400230006728C /* HyperRecipes-Info.plist */,
+				9A4D5DBE189400230006728C /* InfoPlist.strings */,
+				9A4D5DC1189400230006728C /* main.m */,
+				9A4D5DC3189400230006728C /* HyperRecipes-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9A4D5DE1189400230006728C /* HyperRecipesTests */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DE7189400230006728C /* HyperRecipesTests.m */,
+				9A4D5DE2189400230006728C /* Supporting Files */,
+			);
+			path = HyperRecipesTests;
+			sourceTree = "<group>";
+		};
+		9A4D5DE2189400230006728C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DE3189400230006728C /* HyperRecipesTests-Info.plist */,
+				9A4D5DE4189400230006728C /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9A4D5DF71894022C0006728C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				9A4D5DF4189401C10006728C /* Recipe.h */,
+				9A4D5DF5189401C10006728C /* Recipe.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9A4D5DAF189400230006728C /* HyperRecipes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A4D5DEB189400230006728C /* Build configuration list for PBXNativeTarget "HyperRecipes" */;
+			buildPhases = (
+				4F9BE34E11D945B4932B9BCA /* Check Pods Manifest.lock */,
+				9A4D5DAC189400230006728C /* Sources */,
+				9A4D5DAD189400230006728C /* Frameworks */,
+				9A4D5DAE189400230006728C /* Resources */,
+				C25BE9EA6D224175B9663122 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HyperRecipes;
+			productName = HyperRecipes;
+			productReference = 9A4D5DB0189400230006728C /* HyperRecipes.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9A4D5DD8189400230006728C /* HyperRecipesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A4D5DEE189400230006728C /* Build configuration list for PBXNativeTarget "HyperRecipesTests" */;
+			buildPhases = (
+				9A4D5DD5189400230006728C /* Sources */,
+				9A4D5DD6189400230006728C /* Frameworks */,
+				9A4D5DD7189400230006728C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9A4D5DE0189400230006728C /* PBXTargetDependency */,
+			);
+			name = HyperRecipesTests;
+			productName = HyperRecipesTests;
+			productReference = 9A4D5DD9189400230006728C /* HyperRecipesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9A4D5DA8189400230006728C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Delta Velorum Kft.";
+				TargetAttributes = {
+					9A4D5DD8189400230006728C = {
+						TestTargetID = 9A4D5DAF189400230006728C;
+					};
+				};
+			};
+			buildConfigurationList = 9A4D5DAB189400230006728C /* Build configuration list for PBXProject "HyperRecipes" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9A4D5DA7189400230006728C;
+			productRefGroup = 9A4D5DB1189400230006728C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9A4D5DAF189400230006728C /* HyperRecipes */,
+				9A4D5DD8189400230006728C /* HyperRecipesTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9A4D5DAE189400230006728C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DD4189400230006728C /* Images.xcassets in Resources */,
+				9A4D5DC0189400230006728C /* InfoPlist.strings in Resources */,
+				9A4D5DC9189400230006728C /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A4D5DD7189400230006728C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DE6189400230006728C /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F9BE34E11D945B4932B9BCA /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		C25BE9EA6D224175B9663122 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9A4D5DAC189400230006728C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DD2189400230006728C /* DetailViewController.m in Sources */,
+				9A4D5DF6189401C10006728C /* Recipe.m in Sources */,
+				9A4D5DCF189400230006728C /* MasterViewController.m in Sources */,
+				9A4D5DFA1894030E0006728C /* Utils.m in Sources */,
+				9A4D5DC6189400230006728C /* AppDelegate.m in Sources */,
+				9A4D5DC2189400230006728C /* main.m in Sources */,
+				9A4D5DCC189400230006728C /* HyperRecipes.xcdatamodeld in Sources */,
+				9A4D5DF3189400E80006728C /* HyperClient.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A4D5DD5189400230006728C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A4D5DE8189400230006728C /* HyperRecipesTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9A4D5DE0189400230006728C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9A4D5DAF189400230006728C /* HyperRecipes */;
+			targetProxy = 9A4D5DDF189400230006728C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		9A4D5DBE189400230006728C /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9A4D5DBF189400230006728C /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		9A4D5DC7189400230006728C /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9A4D5DC8189400230006728C /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		9A4D5DE4189400230006728C /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9A4D5DE5189400230006728C /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		9A4D5DE9189400230006728C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		9A4D5DEA189400230006728C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9A4D5DEC189400230006728C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EB04B0FFA85942F7A4956893 /* Pods.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "HyperRecipes/HyperRecipes-Prefix.pch";
+				INFOPLIST_FILE = "HyperRecipes/HyperRecipes-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		9A4D5DED189400230006728C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EB04B0FFA85942F7A4956893 /* Pods.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "HyperRecipes/HyperRecipes-Prefix.pch";
+				INFOPLIST_FILE = "HyperRecipes/HyperRecipes-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		9A4D5DEF189400230006728C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HyperRecipes.app/HyperRecipes";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "HyperRecipes/HyperRecipes-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "HyperRecipesTests/HyperRecipesTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		9A4D5DF0189400230006728C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/HyperRecipes.app/HyperRecipes";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "HyperRecipes/HyperRecipes-Prefix.pch";
+				INFOPLIST_FILE = "HyperRecipesTests/HyperRecipesTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9A4D5DAB189400230006728C /* Build configuration list for PBXProject "HyperRecipes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A4D5DE9189400230006728C /* Debug */,
+				9A4D5DEA189400230006728C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A4D5DEB189400230006728C /* Build configuration list for PBXNativeTarget "HyperRecipes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A4D5DEC189400230006728C /* Debug */,
+				9A4D5DED189400230006728C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A4D5DEE189400230006728C /* Build configuration list for PBXNativeTarget "HyperRecipesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A4D5DEF189400230006728C /* Debug */,
+				9A4D5DF0189400230006728C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		9A4D5DCA189400230006728C /* HyperRecipes.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				9A4D5DCB189400230006728C /* HyperRecipes.xcdatamodel */,
+			);
+			currentVersion = 9A4D5DCB189400230006728C /* HyperRecipes.xcdatamodel */;
+			path = HyperRecipes.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 9A4D5DA8189400230006728C /* Project object */;
+}
