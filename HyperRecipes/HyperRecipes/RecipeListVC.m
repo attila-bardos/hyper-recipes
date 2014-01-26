@@ -7,10 +7,11 @@
 //
 
 #import "RecipeListVC.h"
-#import "Recipe.h"
+#import "Recipe+Helper.h"
 #import "AppDelegate.h"
 #import "Utils.h"
 #import "RecipeDetailsVC.h"
+#import "HyperClient.h"
 
 @interface RecipeListVC ()
 @property (strong, nonatomic) NSMutableArray *recipes;
@@ -58,7 +59,7 @@
     // configure the cell
     Recipe *recipe = [self.recipes objectAtIndex:indexPath.row];
     cell.textLabel.text = recipe.name;
-    DLog(@"name = %@, serverId = %d", recipe.name, [recipe.serverId integerValue]);
+    DLog(@"name = %@, serverId = %d, updatedAt = %@", recipe.name, [recipe.serverId integerValue], recipe.updatedAt);
     
     return cell;
 }
@@ -72,19 +73,21 @@
 }
 */
 
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
+        // update model
+        Recipe *recipe = [self.recipes objectAtIndex:indexPath.row];
+        recipe.deleted = @YES;
+        [((AppDelegate*)[UIApplication sharedApplication].delegate) saveContext];
+        [self.recipes removeObjectAtIndex:indexPath.row];
+
+        // update UI
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+        RecipeDetailsVC *detailsVC = [Utils detailsVC];
+        detailsVC.recipe = nil;
+        [detailsVC reloadData];
     }   
 }
-*/
 
 /*
 // Override to support rearranging the table view.
@@ -133,7 +136,7 @@
 #pragma mark - Actions
 
 - (IBAction)refreshTapped:(id)sender {
-    [self performSelectorInBackground:@selector(reloadData) withObject:nil];
+    [self performSelectorInBackground:@selector(syncAndReload) withObject:nil];
 }
 
 - (IBAction)addTapped:(id)sender {
@@ -141,6 +144,8 @@
     NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     Recipe *recipe = [NSEntityDescription insertNewObjectForEntityForName:@"Recipe" inManagedObjectContext:context];
     recipe.name = [[NSDate date] description];
+    recipe.deleted = @NO;
+    [recipe touch];
     [context save:nil];
     
     // update model
@@ -156,6 +161,14 @@
 
 #pragma mark - Other methods
 
+- (void)syncAndReload {
+    [[HyperClient sharedInstance] syncWithCompletionHandler:^(NSError *error) {
+        if (!error) {
+            [self reloadData];
+        }
+    }];
+}
+
 - (void)reloadData {
     // store currently selected recipe so we could possibe restore the selection after reload
     NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
@@ -164,7 +177,8 @@
     // fetch recipes
     NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Recipe"];
-    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:YES]];
+    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO]];
+    request.predicate = [NSPredicate predicateWithFormat:@"deleted = %@", @NO];
     self.recipes = [NSMutableArray arrayWithArray:[context executeFetchRequest:request error:nil]];
     
     // reload table view

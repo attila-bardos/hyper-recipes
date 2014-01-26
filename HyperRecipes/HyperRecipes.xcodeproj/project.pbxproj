@@ -28,6 +28,7 @@
 		9A9ECA931894D793004CDACC /* Recipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA921894D793004CDACC /* Recipe.m */; };
 		9A9ECA9D1894DE45004CDACC /* RecipeListVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA9C1894DE45004CDACC /* RecipeListVC.m */; };
 		9A9ECAA01894E431004CDACC /* RecipeDetailsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA9F1894E431004CDACC /* RecipeDetailsVC.m */; };
+		9A9ECAA31894EC8F004CDACC /* Recipe+Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECAA21894EC8F004CDACC /* Recipe+Helper.m */; };
 		E626E08E3A4A4BAB84E9FE90 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A09FE8596F8F46399D5FDCB1 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,8 @@
 		9A9ECA9C1894DE45004CDACC /* RecipeListVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecipeListVC.m; sourceTree = "<group>"; };
 		9A9ECA9E1894E431004CDACC /* RecipeDetailsVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecipeDetailsVC.h; sourceTree = "<group>"; };
 		9A9ECA9F1894E431004CDACC /* RecipeDetailsVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecipeDetailsVC.m; sourceTree = "<group>"; };
+		9A9ECAA11894EC8F004CDACC /* Recipe+Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Recipe+Helper.h"; path = "Core Data/Recipe+Helper.h"; sourceTree = "<group>"; };
+		9A9ECAA21894EC8F004CDACC /* Recipe+Helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "Recipe+Helper.m"; path = "Core Data/Recipe+Helper.m"; sourceTree = "<group>"; };
 		A09FE8596F8F46399D5FDCB1 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB04B0FFA85942F7A4956893 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -188,6 +191,8 @@
 			children = (
 				9A9ECA911894D793004CDACC /* Recipe.h */,
 				9A9ECA921894D793004CDACC /* Recipe.m */,
+				9A9ECAA11894EC8F004CDACC /* Recipe+Helper.h */,
+				9A9ECAA21894EC8F004CDACC /* Recipe+Helper.m */,
 			);
 			name = "Core Data";
 			sourceTree = "<group>";
@@ -343,6 +348,7 @@
 				9A4D5DCC189400230006728C /* HyperRecipes.xcdatamodeld in Sources */,
 				9A9ECA9D1894DE45004CDACC /* RecipeListVC.m in Sources */,
 				9A4D5DF3189400E80006728C /* HyperClient.m in Sources */,
+				9A9ECAA31894EC8F004CDACC /* Recipe+Helper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
