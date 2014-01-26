@@ -33,11 +33,10 @@
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self performSelectorInBackground:@selector(reloadData) withObject:nil];
+    [self performSelectorInBackground:@selector(syncAndReload) withObject:nil];
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
@@ -59,26 +58,16 @@
     // configure the cell
     Recipe *recipe = [self.recipes objectAtIndex:indexPath.row];
     cell.textLabel.text = recipe.name;
-    DLog(@"name = %@, serverId = %d, updatedAt = %@", recipe.name, [recipe.serverId integerValue], recipe.updatedAt);
     
     return cell;
 }
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // update model
         Recipe *recipe = [self.recipes objectAtIndex:indexPath.row];
         recipe.deleted = @YES;
-        [((AppDelegate*)[UIApplication sharedApplication].delegate) saveContext];
+        [AppDelegate saveContext];
         [self.recipes removeObjectAtIndex:indexPath.row];
 
         // update UI
@@ -86,34 +75,6 @@
         [self.delegate recipeList:self didSelectRecipe:nil];
     }
 }
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-
- */
 
 #pragma mark - Table view delegate
 
@@ -129,12 +90,9 @@
 
 - (IBAction)addTapped:(id)sender {
     // create a new recipe
-    NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
-    Recipe *recipe = [NSEntityDescription insertNewObjectForEntityForName:@"Recipe" inManagedObjectContext:context];
+    Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
     recipe.name = [[NSDate date] description];
-    recipe.deleted = @NO;
-    [recipe touch];
-    [context save:nil];
+    [AppDelegate saveContext];
     
     // update model
     [self.recipes insertObject:recipe atIndex:0];
@@ -150,7 +108,10 @@
 - (void)syncAndReload {
     [[HyperClient sharedInstance] syncWithCompletionHandler:^(NSError *error) {
         if (!error) {
-            [self reloadData];
+            [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+        } else {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Synchronization failed" message:[error localizedDescription] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            [alert show];
         }
     }];
 }
@@ -167,19 +128,26 @@
     request.predicate = [NSPredicate predicateWithFormat:@"deleted = %@", @NO];
     self.recipes = [NSMutableArray arrayWithArray:[context executeFetchRequest:request error:nil]];
     
-    // reload table view
+    // reload table view (performing on the main thread assures this method can be called on a
+    // background thread, too)
     [self.tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
     
     // restore selection if possible
+    BOOL selectionRestored = NO;
     if (currentRecipe) {
         NSInteger index = 0;
         for (Recipe *r in self.recipes) {
             if (([r.serverId integerValue] > 0 && [r.serverId isEqualToNumber:currentRecipe.serverId]) || [r.name isEqualToString:currentRecipe.name]) {
                 [self performSelectorOnMainThread:@selector(selectRowAtIndexPath:) withObject:[NSIndexPath indexPathForRow:index inSection:0] waitUntilDone:NO];
+                selectionRestored = YES;
                 break;
             }
             ++index;
         }
+    }
+    if (!selectionRestored) {
+        // update details VC if selection has changed
+        [self.delegate recipeList:self didSelectRecipe:nil];
     }
 }
 

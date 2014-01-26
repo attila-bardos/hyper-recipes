@@ -12,7 +12,6 @@
 
 + (HyperClient*)sharedInstance;
 
-- (void)sync;
 - (void)syncWithCompletionHandler:(void (^)(NSError *error))completion;
 
 @end

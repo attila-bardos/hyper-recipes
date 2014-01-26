@@ -11,6 +11,7 @@
 #import "Utils.h"
 #import "Recipe.h"
 #import "AppDelegate.h"
+#import "Recipe+Helper.h"
 
 @interface HyperClient ()
 @property (strong, nonatomic) AFHTTPRequestOperationManager *manager;
@@ -23,12 +24,9 @@
     if (sharedInstance == nil) {
         sharedInstance = [[HyperClient alloc] init];
         sharedInstance.manager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:[NSURL URLWithString:@"http://hyper-recipes.herokuapp.com"]];
+        sharedInstance.manager.requestSerializer = [AFJSONRequestSerializer serializerWithWritingOptions:0];
     }
     return sharedInstance;
-}
-
-- (void)sync {
-    [self syncWithCompletionHandler:nil];
 }
 
 - (void)syncWithCompletionHandler:(void (^)(NSError *error))completion {
@@ -59,6 +57,14 @@
         // server will always win (so local changes will be lost)
         [self processRecipesFromServer:responseObject inContext:context];
         
+        // upload recipes which hasn't been uploaded yet
+        NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Recipe"];
+        request.predicate = [NSPredicate predicateWithFormat:@"serverId == 0"];
+        NSArray *recipesToBeUploaded = [context executeFetchRequest:request error:nil];
+        if (recipesToBeUploaded.count > 0) {
+            [self uploadRecipes:recipesToBeUploaded inContext:context];
+        }
+        
         // completed without problems
         if (completion) {
             completion(nil);
@@ -88,23 +94,52 @@
         NSArray *result = [context executeFetchRequest:request error:nil];
         if (result.count > 0) {
             recipe = [result firstObject];
+            recipe.dirty = @NO;     // server always wins (ovewrites local changes)
             DLog(@"updating existing recipe (%@)", recipe.name);
         } else {
-            recipe = [NSEntityDescription insertNewObjectForEntityForName:@"Recipe" inManagedObjectContext:context];
+            recipe = [Recipe recipeInContext:context];
+            recipe.serverId = r[@"id"];
             DLog(@"downloading new recipe (%@)", r[@"name"]);
         }
 
         // update recipe's attributes
-        recipe.serverId = r[@"id"];
         recipe.name = r[@"name"];
         recipe.difficulty = [NSNumber numberWithInteger:[r[@"difficulty"] integerValue]];
-        recipe.desc = r[@"description"];
-        recipe.instructions = r[@"instructions"];
-        recipe.favorite = r[@"favorite"];
-        recipe.imageUrl = r[@"photo"][@"url"];
+        recipe.desc = [self stringFromObject:r[@"description"]];
+        recipe.instructions = [self stringFromObject:r[@"instructions"]];
+        recipe.favorite = [self numberFromObject:r[@"favorite"]];
+        recipe.imageUrl = [self stringFromObject:r[@"photo"][@"url"]];
         recipe.updatedAt = r[@"updated_at"];
-        recipe.deleted = @NO;
-        recipe.dirty = @NO;
+    }
+    [context save:nil];
+}
+
+- (void)uploadRecipes:(NSArray*)recipes inContext:(NSManagedObjectContext*)context {
+    for (Recipe *r in recipes) {
+        NSDictionary *params = @{@"recipe": @{@"name": r.name, @"difficulty": r.difficulty}};
+        [self.manager POST:@"/recipes" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            DLog(@"%@ response:\n%@", operation.request.URL, responseObject);
+            // make sure it's a dictionary
+            if ([responseObject isKindOfClass:[NSDictionary class]] == NO) {
+                DLog(@"** error: array elem is not a dictionary");
+            } else {
+                NSDictionary *dict = (NSDictionary*)responseObject;
+                r.serverId = dict[@"id"];
+                DLog(@"recipe uploaded: %@", r);
+            }
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            DLog(@"** error: %@ (%@), HTTPBody = %@", [error localizedDescription], operation.request.URL, [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding]);
+        }];
+#if 0
+        [self.manager POST:@"/recipes" parameters:params constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+            [formData appendPartWithFormData:[NSJSONSerialization dataWithJSONObject:params options:0 error:nil] name:@"recipe"];
+        } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            DLog(@"%@ response:\n%@", operation.request.URL, responseObject);
+            DLog(@"recipe uploaded: %@", r.name);
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            DLog(@"** error: %@ (%@)", [error localizedDescription], operation.request.URL);
+        }];
+#endif
     }
     [context save:nil];
 }
@@ -114,6 +149,16 @@
 - (void)backgroundThreadDidSave:(NSNotification*)notification {
     // merge changes made in the background thread's context into main thread's context
     [((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext mergeChangesFromContextDidSaveNotification:notification];
+}
+
+#pragma mark - Other methods
+
+- (NSString*)stringFromObject:(id)object {
+    return ([object isKindOfClass:[NSString class]] ? (NSString*)object : @"");
+}
+
+- (NSNumber*)numberFromObject:(id)object {
+    return ([object isKindOfClass:[NSNumber class]] ? (NSNumber*)object : @(0));
 }
 
 @end

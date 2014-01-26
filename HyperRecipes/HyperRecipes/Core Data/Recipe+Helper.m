@@ -10,6 +10,18 @@
 
 @implementation Recipe (Helper)
 
++ (Recipe*)recipeInContext:(NSManagedObjectContext*)context {
+    Recipe *recipe = [NSEntityDescription insertNewObjectForEntityForName:@"Recipe" inManagedObjectContext:context];
+    
+    recipe.difficulty = @(1);
+    recipe.favorite = @NO;
+    recipe.deleted = @NO;
+    recipe.dirty = @NO;
+    [recipe touch];
+
+    return recipe;
+}
+
 - (void)touch {
     self.dirty = @YES;
     

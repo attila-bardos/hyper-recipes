@@ -10,6 +10,8 @@
 
 @interface Recipe (Helper)
 
++ (Recipe*)recipeInContext:(NSManagedObjectContext*)context;
+
 - (void)touch;
 
 @end
