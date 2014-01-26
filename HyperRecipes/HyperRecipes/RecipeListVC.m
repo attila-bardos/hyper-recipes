@@ -83,10 +83,8 @@
 
         // update UI
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        RecipeDetailsVC *detailsVC = [Utils detailsVC];
-        detailsVC.recipe = nil;
-        [detailsVC reloadData];
-    }   
+        [self.delegate recipeList:self didSelectRecipe:nil];
+    }
 }
 
 /*
@@ -120,17 +118,7 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    DLog(@"tableView:didSelectRowAtIndexPath:");
-    RecipeDetailsVC *detailsVC = [Utils detailsVC];
-    detailsVC.recipe = [self.recipes objectAtIndex:indexPath.row];
-    [detailsVC reloadData];
-}
-
-- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-    DLog(@"tableView:didDeselectRowAtIndexPath:");
-    RecipeDetailsVC *detailsVC = [Utils detailsVC];
-    detailsVC.recipe = nil;
-    [detailsVC reloadData];
+    [self.delegate recipeList:self didSelectRecipe:[self.recipes objectAtIndex:indexPath.row]];
 }
 
 #pragma mark - Actions
@@ -154,9 +142,7 @@
     // update UI
     [self.tableView reloadData];
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
-    RecipeDetailsVC *detailsVC = [Utils detailsVC];
-    detailsVC.recipe = recipe;
-    [detailsVC reloadData];
+    [self.delegate recipeList:self didSelectRecipe:recipe];
 }
 
 #pragma mark - Other methods

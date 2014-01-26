@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "HyperClient.h"
 #import "Utils.h"
+#import "RecipeListVC.h"
 
 @implementation AppDelegate
 
@@ -17,6 +18,12 @@
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // make the recipe details the delegate of recipe list (so it updates itself when selection changes)
+    UISplitViewController *splitVC = (UISplitViewController*)self.window.rootViewController;
+    RecipeListVC *recipeListVC = (RecipeListVC*)[((UINavigationController*)[splitVC.viewControllers firstObject]).viewControllers firstObject];
+    RecipeDetailsVC *recipeDetailsVC = (RecipeDetailsVC*)[((UINavigationController*)[splitVC.viewControllers objectAtIndex:1]).viewControllers firstObject];
+    recipeListVC.delegate = recipeDetailsVC;
+    
     return YES;
 }
 							

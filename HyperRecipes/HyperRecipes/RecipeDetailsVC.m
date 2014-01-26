@@ -35,6 +35,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - Recipe list delegate
+
+- (void)recipeList:(RecipeListVC *)recipeListVC didSelectRecipe:(Recipe *)recipe {
+    self.recipe = recipe;
+    [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+}
+
 #pragma mark - Other methods
 
 - (void)reloadData {

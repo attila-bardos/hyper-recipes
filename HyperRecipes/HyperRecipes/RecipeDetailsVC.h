@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "Recipe.h"
+#import "RecipeListVC.h"
 
-@interface RecipeDetailsVC : UIViewController
+@interface RecipeDetailsVC : UIViewController <RecipleListDelegate>
 
 @property (strong, nonatomic) Recipe *recipe;
 

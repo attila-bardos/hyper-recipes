@@ -7,7 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Recipe.h"
+
+@class RecipeListVC;
+
+@protocol RecipleListDelegate <NSObject>
+- (void)recipeList:(RecipeListVC*)recipeListVC didSelectRecipe:(Recipe*)recipe;
+@end
 
 @interface RecipeListVC : UITableViewController
+
+@property (weak, nonatomic) id<RecipleListDelegate> delegate;
 
 @end
