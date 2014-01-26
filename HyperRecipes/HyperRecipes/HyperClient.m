@@ -117,15 +117,19 @@
 - (void)uploadRecipes:(NSArray*)recipes inContext:(NSManagedObjectContext*)context {
     for (Recipe *r in recipes) {
         NSDictionary *params = @{@"recipe": @{@"name": r.name, @"difficulty": r.difficulty}};
+        [self.manager.requestSerializer setValue:[[r.objectID URIRepresentation] absoluteString] forHTTPHeaderField:@"X-Recipe-ObjectID"];
         [self.manager POST:@"/recipes" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
             DLog(@"%@ response:\n%@", operation.request.URL, responseObject);
             // make sure it's a dictionary
             if ([responseObject isKindOfClass:[NSDictionary class]] == NO) {
                 DLog(@"** error: array elem is not a dictionary");
             } else {
+                //r.serverId = dict[@"id"];
+                NSManagedObjectID *objectID = [context.persistentStoreCoordinator managedObjectIDForURIRepresentation:[NSURL URLWithString:[operation.request valueForHTTPHeaderField:@"X-Recipe-ObjectID"]]];
+                Recipe *recipe = (Recipe*)[context objectWithID:objectID];
                 NSDictionary *dict = (NSDictionary*)responseObject;
-                r.serverId = dict[@"id"];
-                DLog(@"recipe uploaded: %@", r);
+                recipe.serverId = dict[@"id"];
+                DLog(@"recipe uploaded: %@", recipe);
             }
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             DLog(@"** error: %@ (%@), HTTPBody = %@", [error localizedDescription], operation.request.URL, [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding]);
