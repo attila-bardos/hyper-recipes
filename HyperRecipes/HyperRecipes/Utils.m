@@ -7,7 +7,15 @@
 //
 
 #import "Utils.h"
+#import "AppDelegate.h"
 
 @implementation Utils
+
++ (RecipeDetailsVC*)detailsVC {
+    AppDelegate *appDelegate = ((AppDelegate*)[UIApplication sharedApplication].delegate);
+    UISplitViewController *splitVC = (UISplitViewController*)appDelegate.window.rootViewController;
+    UINavigationController *navVC = [splitVC.viewControllers objectAtIndex:1];
+    return [navVC.viewControllers firstObject];
+}
 
 @end

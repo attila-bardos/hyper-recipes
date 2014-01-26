@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RecipeDetailsVC.h"
 
 @interface Utils : NSObject
 
@@ -15,5 +16,7 @@
 #else
 #define DLog(...)
 #endif
+
++ (RecipeDetailsVC*)detailsVC;
 
 @end
