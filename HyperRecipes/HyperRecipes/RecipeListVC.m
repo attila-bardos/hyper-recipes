@@ -30,6 +30,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // notification
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recipeDidChange:) name:@"RecipeDidChange" object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -103,6 +106,21 @@
     [self.delegate recipeList:self didSelectRecipe:recipe];
 }
 
+#pragma mark - Notifications
+
+- (void)recipeDidChange:(NSNotification*)notification {
+    // look for recipe and reload its row in the table view
+    Recipe *recipe = (Recipe*)notification.object;
+    NSInteger index = 0;
+    for (Recipe *r in self.recipes) {
+        if (r == recipe) {
+            [self performSelectorOnMainThread:@selector(reloadAndSelectRowAtIndexPath:) withObject:[NSIndexPath indexPathForRow:index inSection:0] waitUntilDone:NO];
+            break;
+        }
+        ++index;
+    }
+}
+
 #pragma mark - Other methods
 
 - (void)syncAndReload {
@@ -152,6 +170,11 @@
 }
 
 - (void)selectRowAtIndexPath:(NSIndexPath*)indexPath {
+    [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+}
+
+- (void)reloadAndSelectRowAtIndexPath:(NSIndexPath*)indexPath {
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
 }
 

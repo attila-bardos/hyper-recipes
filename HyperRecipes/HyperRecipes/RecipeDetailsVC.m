@@ -7,6 +7,9 @@
 //
 
 #import "RecipeDetailsVC.h"
+#import "Recipe+Helper.h"
+#import "AppDelegate.h"
+#import "Utils.h"
 
 @interface RecipeDetailsVC ()
 
@@ -14,8 +17,7 @@
 
 @implementation RecipeDetailsVC
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
@@ -23,10 +25,11 @@
     return self;
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+
+    // notification
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recipeDidChange:) name:@"RecipeDidChange" object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -35,11 +38,34 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - Actions
+
+- (IBAction)touchTapped:(id)sender {
+    // touch the recipe
+    [self.recipe touch];
+    self.recipe.name = self.recipe.updatedAt;
+    [AppDelegate saveContext];
+    
+    // send a notification so UI could be updated to show changed data
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
+}
+
 #pragma mark - Recipe list delegate
 
 - (void)recipeList:(RecipeListVC *)recipeListVC didSelectRecipe:(Recipe *)recipe {
     self.recipe = recipe;
     [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+    if (recipe) {
+        DLog(@"recipe: %@, difficulty = %@, updatedAt = %@", recipe.name, recipe.difficulty, recipe.updatedAt);
+    }
+}
+
+#pragma mark - Notifications
+
+- (void)recipeDidChange:(NSNotification*)notification {
+    if (self.recipe == (Recipe*)notification.object) {
+        [self reloadData];
+    }
 }
 
 #pragma mark - Other methods
