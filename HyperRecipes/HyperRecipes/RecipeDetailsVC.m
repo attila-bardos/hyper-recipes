@@ -10,8 +10,9 @@
 #import "Recipe+Helper.h"
 #import "AppDelegate.h"
 #import "Utils.h"
+#import <AFNetworking/UIImageView+AFNetworking.h>
 
-@interface RecipeDetailsVC ()
+@interface RecipeDetailsVC () <UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UITextView *descTextView;
@@ -32,6 +33,9 @@
 
     // notification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recipeDidChange:) name:@"RecipeDidChange" object:nil];
+    
+    // delegates
+    self.nameTextField.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning
@@ -58,8 +62,21 @@
     self.recipe = recipe;
     [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
     if (recipe) {
-        DLog(@"recipe: %@, difficulty = %@, updatedAt = %@", recipe.name, recipe.difficulty, recipe.updatedAt);
+        DLog(@"recipe: %@", recipe);
     }
+}
+
+#pragma mark - Text field delegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    self.recipe.name = textField.text;
+    [self.recipe touch];
+    [AppDelegate saveContext];
 }
 
 #pragma mark - Notifications
@@ -76,7 +93,12 @@
     if (self.recipe) {
         // load values
         self.nameTextField.text = self.recipe.name;
-        self.descTextView.text = self.recipe.desc;
+        if (self.recipe.imageUrl.length > 0) {
+            [self.imageView setImageWithURL:[NSURL URLWithString:self.recipe.imageUrl]];
+        } else if (self.recipe.imageFileName.length > 0) {
+            [self.imageView setImage:self.recipe.image];
+        }
+        self.descTextView.text = [NSString stringWithFormat:@"%@\n\nInstructions\n\n%@", self.recipe.desc, self.recipe.instructions];
 
         // adjust visibility
         self.nameTextField.hidden = NO;

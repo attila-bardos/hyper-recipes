@@ -31,6 +31,8 @@
 		9A4D5E121896D9780006728C /* sample_1_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5E0E1896D9780006728C /* sample_1_image.jpg */; };
 		9A4D5E131896D9780006728C /* sample_1_instructions.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5E0F1896D9780006728C /* sample_1_instructions.txt */; };
 		9A4D5E141896D9780006728C /* sample_2_image.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5E101896D9780006728C /* sample_2_image.jpg */; };
+		9A4D5E171896DDA00006728C /* sample_2_desc.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5E151896DDA00006728C /* sample_2_desc.txt */; };
+		9A4D5E181896DDA00006728C /* sample_2_instructions.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9A4D5E161896DDA00006728C /* sample_2_instructions.txt */; };
 		9A9ECA931894D793004CDACC /* Recipe.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA921894D793004CDACC /* Recipe.m */; };
 		9A9ECA9D1894DE45004CDACC /* RecipeListVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA9C1894DE45004CDACC /* RecipeListVC.m */; };
 		9A9ECAA01894E431004CDACC /* RecipeDetailsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9ECA9F1894E431004CDACC /* RecipeDetailsVC.m */; };
@@ -78,6 +80,8 @@
 		9A4D5E0E1896D9780006728C /* sample_1_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sample_1_image.jpg; sourceTree = "<group>"; };
 		9A4D5E0F1896D9780006728C /* sample_1_instructions.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_1_instructions.txt; sourceTree = "<group>"; };
 		9A4D5E101896D9780006728C /* sample_2_image.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sample_2_image.jpg; sourceTree = "<group>"; };
+		9A4D5E151896DDA00006728C /* sample_2_desc.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_2_desc.txt; sourceTree = "<group>"; };
+		9A4D5E161896DDA00006728C /* sample_2_instructions.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_2_instructions.txt; sourceTree = "<group>"; };
 		9A9ECA911894D793004CDACC /* Recipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Recipe.h; path = "Core Data/Recipe.h"; sourceTree = "<group>"; };
 		9A9ECA921894D793004CDACC /* Recipe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Recipe.m; path = "Core Data/Recipe.m"; sourceTree = "<group>"; };
 		9A9ECA9B1894DE45004CDACC /* RecipeListVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecipeListVC.h; sourceTree = "<group>"; };
@@ -216,6 +220,8 @@
 				9A4D5E0E1896D9780006728C /* sample_1_image.jpg */,
 				9A4D5E0F1896D9780006728C /* sample_1_instructions.txt */,
 				9A4D5E101896D9780006728C /* sample_2_image.jpg */,
+				9A4D5E151896DDA00006728C /* sample_2_desc.txt */,
+				9A4D5E161896DDA00006728C /* sample_2_instructions.txt */,
 			);
 			name = "Sample content";
 			sourceTree = "<group>";
@@ -322,6 +328,8 @@
 			files = (
 				9A4D5E121896D9780006728C /* sample_1_image.jpg in Resources */,
 				9A4D5DFF1896CA6A0006728C /* 726-star@2x.png in Resources */,
+				9A4D5E171896DDA00006728C /* sample_2_desc.txt in Resources */,
+				9A4D5E181896DDA00006728C /* sample_2_instructions.txt in Resources */,
 				9A4D5E111896D9780006728C /* sample_1_desc.txt in Resources */,
 				9A4D5DD4189400230006728C /* Images.xcassets in Resources */,
 				9A4D5DFE1896CA6A0006728C /* 726-star.png in Resources */,

@@ -33,7 +33,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="703" height="704"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" text="Steak &amp; guacamole wrap" placeholder="Name" minimumFontSize="17" id="iqR-p5-3nH">
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" text="Steak &amp; guacamole wrap" placeholder="Name" minimumFontSize="17" clearButtonMode="whileEditing" id="iqR-p5-3nH">
                                         <rect key="frame" x="71" y="21" width="606" height="35"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Avenir-HeavyOblique" family="Avenir" pointSize="24"/>
@@ -46,12 +46,12 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                     </button>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sample_1_image.jpg" id="MIG-KC-HDY">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sample_1_image.jpg" id="MIG-KC-HDY">
                                         <rect key="frame" x="25" y="71" width="300" height="400"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     </imageView>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" id="qwh-Hd-ACt">
-                                        <rect key="frame" x="342" y="60" width="335" height="623"/>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" id="qwh-Hd-ACt">
+                                        <rect key="frame" x="342" y="60" width="335" height="644"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <mutableString key="text">First make the guacamole. Put the avocados, tomatoes, garlic, cumin, spring onions and most of the coriander in a food processor and pulse to a chunky paste. Scoop into a bowl, season with salt, pepper and lime juice to taste, then stir in a little extra virgin olive oil. 

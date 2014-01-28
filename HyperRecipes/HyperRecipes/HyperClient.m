@@ -63,9 +63,17 @@
         for (Recipe *recipe in recipesToBeUploaded) {
             [self createRecipe:recipe withCompletion:^(Recipe *recipe, NSNumber *serverId, NSString *imageUrl, NSError *error) {
                 if (!error) {
+                    // update recipe with serverID and imageUrl
                     recipe.serverId = serverId;
                     recipe.imageUrl = imageUrl;
                     recipe.dirty = @NO;
+                    
+                    // remove local image file if it has been successfully uploaded to the server
+                    if (recipe.imageUrl.length > 0 && recipe.imageFileName.length > 0) {
+                        [recipe removeImage];
+                    }
+
+                    // save changes
                     [context save:nil];
                     DLog(@"recipe created: %@", recipe.name);
                 } else {
@@ -182,8 +190,16 @@
 }
 
 - (void)createRecipe:(Recipe*)recipe withCompletion:(void (^)(Recipe *recipe, NSNumber *serverId, NSString *imageUrl, NSError *error))completion {
-    NSDictionary *params = @{@"recipe": @{@"name": recipe.name, @"difficulty": recipe.difficulty}};
-    [self.manager POST:@"/recipes" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    NSString *name = (recipe.name.length > 255 ? [recipe.name substringToIndex:255] : recipe.name);
+    NSString *desc = (recipe.desc.length > 255 ? [recipe.desc substringToIndex:255] : recipe.desc);
+    NSString *instructions = (recipe.instructions.length > 255 ? [recipe.instructions substringToIndex:255] : recipe.instructions);
+    NSDictionary *params = @{@"recipe": @{@"name": name, @"difficulty": recipe.difficulty, @"description": desc, @"favorite": recipe.favorite, @"instructions": instructions}};
+    [self.manager POST:@"recipes" parameters:params constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        DLog(@"formData = %@", formData);
+        if (recipe.imageFileName) {
+            [formData appendPartWithFileData:recipe.imageData name:@"recipe[photo]" fileName:recipe.imageFileName mimeType:@"image/jpeg"];
+        }
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
         if ([responseObject isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)responseObject;
             NSNumber *serverId = dict[@"id"];
@@ -201,7 +217,10 @@
 }
 
 - (void)updateRecipe:(Recipe*)recipe withCompletion:(void (^)(Recipe *recipe, NSError *error))completion {
-    NSDictionary *params = @{@"recipe": @{@"name": recipe.name, @"difficulty": recipe.difficulty}};
+    NSString *name = (recipe.name.length > 255 ? [recipe.name substringToIndex:255] : recipe.name);
+    NSString *desc = (recipe.desc.length > 255 ? [recipe.desc substringToIndex:255] : recipe.desc);
+    NSString *instructions = (recipe.instructions.length > 255 ? [recipe.instructions substringToIndex:255] : recipe.instructions);
+    NSDictionary *params = @{@"recipe": @{@"name": name, @"difficulty": recipe.difficulty, @"description": desc, @"favorite": recipe.favorite, @"instructions": instructions}};
     [self.manager PUT:[NSString stringWithFormat:@"/recipes/%d", [recipe.serverId integerValue]] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         if (completion) {
             completion(recipe, nil);

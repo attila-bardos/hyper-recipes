@@ -92,11 +92,24 @@
 }
 
 - (IBAction)addTapped:(id)sender {
+#if 0
     // create a new recipe
     Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
     recipe.name = [[NSDate date] description];
     [AppDelegate saveContext];
-    
+#endif
+
+    // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
+    Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
+    recipe.name = @"Steak & guacamole wrap";
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"];
+    DLog(@"path = %@", path);
+    recipe.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    UIImage *image = [UIImage imageNamed:@"sample_1_image.jpg"];
+    [recipe setImage:image];
+    [AppDelegate saveContext];
+
     // update model
     [self.recipes insertObject:recipe atIndex:0];
     

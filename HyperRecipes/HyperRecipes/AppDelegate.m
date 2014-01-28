@@ -26,10 +26,12 @@
     recipeListVC.delegate = recipeDetailsVC;
     
     // add sample content
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@""] == NO) {
+#if 0
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sampleContentCreated"] == NO) {
         [self createSampleContent];
         [self.managedObjectContext save:nil];
     }
+#endif
     
     return YES;
 }
@@ -163,12 +165,16 @@
     DLog(@"path = %@", path);
     recipe1.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
     recipe1.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe1.imageUrl = [[[NSBundle mainBundle] URLForResource:@"sample_1_image" withExtension:@"jpg"] absoluteString];
+    DLog(@"recipe1 = %@", recipe1);
     
     // http://www.jamieoliver.com/recipes/beef-recipes/aussie-humble-pie
     Recipe *recipe2 = [Recipe recipeInContext:self.managedObjectContext];
     recipe2.name = @"Aussie humble pie";
     recipe2.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
     recipe2.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe2.imageUrl = [[[NSBundle mainBundle] URLForResource:@"sample_2_image" withExtension:@"jpg"] absoluteString];
+    DLog(@"recipe2 = %@", recipe2);
 
     // make sure it doesn't get created twice
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"sampleContentCreated"];

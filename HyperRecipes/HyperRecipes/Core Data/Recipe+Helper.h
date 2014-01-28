@@ -13,5 +13,9 @@
 + (Recipe*)recipeInContext:(NSManagedObjectContext*)context;
 
 - (void)touch;
+- (UIImage*)image;
+- (void)setImage:(UIImage*)image;
+- (NSData*)imageData;
+- (void)removeImage;
 
 @end
