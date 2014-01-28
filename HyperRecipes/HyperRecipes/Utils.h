@@ -3,10 +3,11 @@
 //  Chili
 //
 //  Created by Attila Bárdos on 12/19/13.
-//  Copyright (c) 2013 Altair Software Limited. All rights reserved.
+//  Copyright (c) 2013 Delta Velorum Kft. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import "RecipeDetailsVC.h"
 
 @interface Utils : NSObject
 
@@ -15,5 +16,7 @@
 #else
 #define DLog(...)
 #endif
+
++ (RecipeDetailsVC*)detailsVC;
 
 @end

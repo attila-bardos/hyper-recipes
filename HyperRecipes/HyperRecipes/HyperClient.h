@@ -12,6 +12,6 @@
 
 + (HyperClient*)sharedInstance;
 
-- (void)downloadRecipesWithCompletionHandler:(void (^)(NSArray *recipes, NSError *error))completion;
+- (void)syncWithCompletionHandler:(void (^)(NSError *error))completion;
 
 @end

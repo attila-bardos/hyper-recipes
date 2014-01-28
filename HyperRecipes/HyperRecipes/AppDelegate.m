@@ -7,8 +7,10 @@
 //
 
 #import "AppDelegate.h"
-
-#import "MasterViewController.h"
+#import "HyperClient.h"
+#import "Utils.h"
+#import "RecipeListVC.h"
+#import "Recipe+Helper.h"
 
 @implementation AppDelegate
 
@@ -16,16 +18,19 @@
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    // Override point for customization after application launch.
-    UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
-    UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-    splitViewController.delegate = (id)navigationController.topViewController;
-
-    UINavigationController *masterNavigationController = splitViewController.viewControllers[0];
-    MasterViewController *controller = (MasterViewController *)masterNavigationController.topViewController;
-    controller.managedObjectContext = self.managedObjectContext;
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // make RecipeDetailsVC the delegate of RecipeListVC (so it updates itself when selection changes)
+    UISplitViewController *splitVC = (UISplitViewController*)self.window.rootViewController;
+    RecipeListVC *recipeListVC = (RecipeListVC*)[((UINavigationController*)[splitVC.viewControllers firstObject]).viewControllers firstObject];
+    RecipeDetailsVC *recipeDetailsVC = (RecipeDetailsVC*)[((UINavigationController*)[splitVC.viewControllers objectAtIndex:1]).viewControllers firstObject];
+    recipeListVC.delegate = recipeDetailsVC;
+    
+    // add sample content
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@""] == NO) {
+        [self createSampleContent];
+        [self.managedObjectContext save:nil];
+    }
+    
     return YES;
 }
 							
@@ -46,21 +51,17 @@
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+- (void)applicationDidBecomeActive:(UIApplication *)application {
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
+- (void)applicationWillTerminate:(UIApplication *)application {
     // Saves changes in the application's managed object context before the application terminates.
-    [self saveContext];
+    [AppDelegate saveContext];
 }
 
-- (void)saveContext
-{
++ (void)saveContext {
     NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = self.managedObjectContext;
+    NSManagedObjectContext *managedObjectContext = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     if (managedObjectContext != nil) {
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
              // Replace this implementation with code to handle the error appropriately.
@@ -71,12 +72,15 @@
     }
 }
 
++ (NSManagedObjectContext*)context {
+    return ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
+}
+
 #pragma mark - Core Data stack
 
 // Returns the managed object context for the application.
 // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
-- (NSManagedObjectContext *)managedObjectContext
-{
+- (NSManagedObjectContext *)managedObjectContext {
     if (_managedObjectContext != nil) {
         return _managedObjectContext;
     }
@@ -91,8 +95,7 @@
 
 // Returns the managed object model for the application.
 // If the model doesn't already exist, it is created from the application's model.
-- (NSManagedObjectModel *)managedObjectModel
-{
+- (NSManagedObjectModel *)managedObjectModel {
     if (_managedObjectModel != nil) {
         return _managedObjectModel;
     }
@@ -103,8 +106,7 @@
 
 // Returns the persistent store coordinator for the application.
 // If the coordinator doesn't already exist, it is created and the application's store added to it.
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
-{
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
     if (_persistentStoreCoordinator != nil) {
         return _persistentStoreCoordinator;
     }
@@ -147,9 +149,30 @@
 #pragma mark - Application's Documents directory
 
 // Returns the URL to the application's Documents directory.
-- (NSURL *)applicationDocumentsDirectory
-{
+- (NSURL *)applicationDocumentsDirectory {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+}
+
+#pragma mark - Sample content creation
+
+- (void)createSampleContent {
+    // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
+    Recipe *recipe1 = [Recipe recipeInContext:self.managedObjectContext];
+    recipe1.name = @"Steak & guacamole wrap";
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"];
+    DLog(@"path = %@", path);
+    recipe1.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe1.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    
+    // http://www.jamieoliver.com/recipes/beef-recipes/aussie-humble-pie
+    Recipe *recipe2 = [Recipe recipeInContext:self.managedObjectContext];
+    recipe2.name = @"Aussie humble pie";
+    recipe2.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe2.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+
+    // make sure it doesn't get created twice
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"sampleContentCreated"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end
