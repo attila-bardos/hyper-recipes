@@ -12,8 +12,8 @@
 #import "Utils.h"
 #import <AFNetworking/UIImageView+AFNetworking.h>
 
-@interface RecipeDetailsVC () <UITextFieldDelegate, UITextViewDelegate>
-@property (weak, nonatomic) IBOutlet UIButton *favoritesButton;
+@interface RecipeDetailsVC () <UITextFieldDelegate, UITextViewDelegate, UIScrollViewDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate>
+@property (weak, nonatomic) IBOutlet UIButton *imageButton;
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak, nonatomic) IBOutlet UILabel *descLabel;
@@ -21,8 +21,16 @@
 @property (weak, nonatomic) IBOutlet UILabel *instructionsLabel;
 @property (weak, nonatomic) IBOutlet UITextView *instructionsTextView;
 @property (strong, nonatomic) UIBarButtonItem *doneButton;
+@property (strong, nonatomic) UIBarButtonItem *addToFavoritesButton;
+@property (strong, nonatomic) UIBarButtonItem *removeFromFavoritesButton;
 @property (strong, nonatomic) UITextView *currentTextView;
+@property (strong, nonatomic) UIActionSheet *imageSourceActionSheet;
+@property (strong, nonatomic) UIImagePickerController *imagePicker;
 @end
+
+#pragma mark - Constants
+
+static const CGFloat TextViewHeight = 238.0;
 
 @implementation RecipeDetailsVC
 
@@ -45,8 +53,14 @@
     self.descTextView.delegate = self;
     self.instructionsTextView.delegate = self;
     
-    // "Done" button for the text views
+    // bar buttons
     self.doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneTapped:)];
+    self.addToFavoritesButton = [[UIBarButtonItem alloc] initWithTitle:@"Add to Favorites" style:UIBarButtonItemStylePlain target:self action:@selector(addToFavoritesTapped:)];
+    self.removeFromFavoritesButton = [[UIBarButtonItem alloc] initWithTitle:@"Remove from Favorites" style:UIBarButtonItemStylePlain target:self action:@selector(removeFromFavoritesTapped:)];
+    
+    // image picker
+    self.imagePicker = [[UIImagePickerController alloc] init];
+    self.imagePicker.allowsEditing = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -57,8 +71,36 @@
 
 #pragma mark - Actions
 
+- (IBAction)imageTapped:(id)sender {
+    UIButton *button = (UIButton*)sender;
+    if (self.imageSourceActionSheet == nil) {
+        self.imageSourceActionSheet = [[UIActionSheet alloc] initWithTitle:@"Pick image from" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Photo Library", @"Camera", nil];
+    }
+    [self.imageSourceActionSheet showFromRect:button.bounds inView:button animated:YES];
+}
+
 - (void)doneTapped:(id)sender {
     [self.currentTextView resignFirstResponder];
+}
+
+- (void)addToFavoritesTapped:(id)sender {
+    // update model
+    self.recipe.favorite = @YES;
+    [self.recipe touch];
+    [AppDelegate saveContext];
+    
+    // let others know about the change
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
+}
+
+- (void)removeFromFavoritesTapped:(id)sender {
+    // update model
+    self.recipe.favorite = @NO;
+    [self.recipe touch];
+    [AppDelegate saveContext];
+    
+    // let others know about the change
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
 }
 
 #pragma mark - Recipe list delegate
@@ -74,12 +116,29 @@
 #pragma mark - Text view delegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    // adjust text view height
-    [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        [self layoutTextViewsWithTextViewBeingEdited:textView];
-    } completion:^(BOOL finished) {
-        ;
-    }];
+    // adjust text view positions and visibility
+    if (textView == self.descTextView) {
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            CGRect f = self.descTextView.frame;
+            self.descTextView.frame = CGRectMake(f.origin.x, f.origin.y, f.size.width, TextViewHeight);
+            self.instructionsLabel.alpha = 0.0;
+            self.instructionsTextView.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            self.instructionsLabel.hidden = YES;
+            self.instructionsTextView.hidden = YES;
+        }];
+    } else if (textView == self.instructionsTextView) {
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            CGRect f = self.descTextView.frame;
+            self.instructionsLabel.frame = self.descLabel.frame;
+            self.instructionsTextView.frame = CGRectMake(f.origin.x, f.origin.y, f.size.width, TextViewHeight);
+            self.descLabel.alpha = 0.0;
+            self.descTextView.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            self.descLabel.hidden = YES;
+            self.descTextView.hidden = YES;
+        }];
+    }
     
     // add "Done" button
     self.navigationItem.rightBarButtonItem = self.doneButton;
@@ -89,18 +148,59 @@
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
-    // adjust text view height
-    [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-        [self layoutTextViewsWithTextViewBeingEdited:nil];
-    } completion:^(BOOL finished) {
-        ;
-    }];
+    // adjust text view positions and visibility
+    if (textView == self.descTextView) {
+        self.instructionsLabel.hidden = NO;
+        self.instructionsTextView.hidden = NO;
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            [self layoutTextViewsWithTextViewBeingEdited:nil];
+            self.instructionsLabel.alpha = 1.0;
+            self.instructionsTextView.alpha = 1.0;
+        } completion:^(BOOL finished) {
+            ;
+        }];
+    } else if (textView == self.instructionsTextView) {
+        self.descLabel.hidden = NO;
+        self.descTextView.hidden = NO;
+        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            [self layoutTextViewsWithTextViewBeingEdited:nil];
+            self.descLabel.alpha = 1.0;
+            self.descTextView.alpha = 1.0;
+        } completion:^(BOOL finished) {
+            ;
+        }];
+    }
+    
+    // update model
+    if (textView == self.descTextView) {
+        self.recipe.desc = textView.text;
+    } else if (textView == self.instructionsTextView) {
+        self.recipe.instructions = textView.text;
+    }
+    [self.recipe touch];
+    [AppDelegate saveContext];
 
     // remove "Done" button
     self.navigationItem.rightBarButtonItem = nil;
     
     // reset
     self.currentTextView = nil;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    // make sure the user can't enter text longer than the server's limit
+    NSString *updatedText = [textView.text stringByReplacingCharactersInRange:range withString:text];
+    return (updatedText.length < 255);
+}
+
+#pragma mark - Action sheet delegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Camera"]) {
+        self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Photo Library"]) {
+        self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    }
 }
 
 #pragma mark - Text field delegate
@@ -111,9 +211,13 @@
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
+    // udpate model
     self.recipe.name = textField.text;
     [self.recipe touch];
     [AppDelegate saveContext];
+    
+    // let others know about the change
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
 }
 
 #pragma mark - Notifications
@@ -131,15 +235,17 @@
         // load values
         self.nameTextField.text = self.recipe.name;
         if (self.recipe.imageUrl.length > 0) {
-            [self.imageView setImageWithURL:[NSURL URLWithString:self.recipe.imageUrl]];
+            [self.imageView setImageWithURL:[NSURL URLWithString:self.recipe.imageUrl] placeholderImage:[UIImage imageNamed:@"image_placeholder.png"]];
         } else if (self.recipe.imageFileName.length > 0) {
             [self.imageView setImage:self.recipe.image];
+        } else {
+            [self.imageView setImage:nil];
         }
         self.descTextView.text = self.recipe.desc;
         self.instructionsTextView.text = self.recipe.instructions;
 
         // adjust visibility
-        self.favoritesButton.hidden = NO;
+        self.imageButton.hidden = NO;
         self.nameTextField.hidden = NO;
         self.imageView.hidden = NO;
         self.descLabel.hidden = NO;
@@ -149,22 +255,26 @@
         
         // adjust text views' height and position according to their content
         [self layoutTextViewsWithTextViewBeingEdited:nil];
+        
+        // set favorite button
+        self.navigationItem.leftBarButtonItem = ([self.recipe.favorite boolValue] ? self.removeFromFavoritesButton : self.addToFavoritesButton);
     } else {
         // adjust visibility
-        self.favoritesButton.hidden = YES;
+        self.imageButton.hidden = YES;
         self.nameTextField.hidden = YES;
         self.imageView.hidden = YES;
         self.descLabel.hidden = YES;
         self.descTextView.hidden = YES;
         self.instructionsLabel.hidden = YES;
         self.instructionsTextView.hidden = YES;
+        self.navigationItem.leftBarButtonItem = nil;
     }
 }
 
 - (void)layoutTextViewsWithTextViewBeingEdited:(UITextView*)textView {
     // description text view
     CGFloat y = self.descTextView.frame.origin.y;
-    CGFloat height = (textView == self.descTextView ? 150.0 : [self textViewHeightForAttributedText:self.descTextView.attributedText andWidth:self.descTextView.bounds.size.width]);
+    CGFloat height = (textView == self.descTextView ? TextViewHeight : [self textViewHeightForAttributedText:self.descTextView.attributedText andWidth:self.descTextView.bounds.size.width]);
     CGRect f = self.descTextView.frame;
     self.descTextView.frame = CGRectMake(f.origin.x, y, f.size.width, height);
     y += self.descTextView.frame.size.height + 25;
@@ -176,7 +286,7 @@
     
     // instructiosn text view
     f = self.instructionsTextView.frame;
-    height = (textView == self.instructionsTextView ? 150.0 : [self textViewHeightForAttributedText:self.instructionsTextView.attributedText andWidth:self.instructionsTextView.bounds.size.width]);
+    height = (textView == self.instructionsTextView ? TextViewHeight : [self textViewHeightForAttributedText:self.instructionsTextView.attributedText andWidth:self.instructionsTextView.bounds.size.width]);
     self.instructionsTextView.frame = CGRectMake(f.origin.x, y, f.size.width, height);
 }
 

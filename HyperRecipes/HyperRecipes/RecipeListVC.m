@@ -12,6 +12,7 @@
 #import "Utils.h"
 #import "RecipeDetailsVC.h"
 #import "HyperClient.h"
+#import "RecipeCell.h"
 
 @interface RecipeListVC ()
 @property (strong, nonatomic) NSMutableArray *recipes;
@@ -60,7 +61,8 @@
 
     // configure the cell
     Recipe *recipe = [self.recipes objectAtIndex:indexPath.row];
-    cell.textLabel.text = recipe.name;
+    ((RecipeCell*)cell).nameLabel.text = recipe.name;
+    ((RecipeCell*)cell).favoriteImageView.hidden = ([recipe.favorite boolValue] == NO);
     
     return cell;
 }
@@ -101,12 +103,12 @@
 
     // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
     Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
-    recipe.name = @"Steak & guacamole wrap";
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"];
+    recipe.name = @"Aussie humble pie";
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"];
     DLog(@"path = %@", path);
-    recipe.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    UIImage *image = [UIImage imageNamed:@"sample_1_image.jpg"];
+    recipe.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    recipe.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+    UIImage *image = [UIImage imageNamed:@"sample_2_image.jpg"];
     [recipe setImage:image];
     [AppDelegate saveContext];
 
@@ -155,7 +157,7 @@
     // fetch recipes
     NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Recipe"];
-    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO]];
+    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCompare:)]];
     request.predicate = [NSPredicate predicateWithFormat:@"deleted = %@", @NO];
     self.recipes = [NSMutableArray arrayWithArray:[context executeFetchRequest:request error:nil]];
     
