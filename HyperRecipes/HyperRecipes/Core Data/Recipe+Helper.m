@@ -59,6 +59,9 @@
         DLog(@"** error: can't save image to %@", path);
         self.imageFileName = nil;
     }
+    
+    // don't clear imageUrl because it won't be resent by the update web service call (I used to clear it)
+    // self.imageUrl = nil;
 }
 
 - (NSData*)imageData {

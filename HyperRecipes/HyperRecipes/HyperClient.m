@@ -88,7 +88,16 @@
         for (Recipe *recipe in recipesToBeUpdated) {
             [self updateRecipe:recipe withCompletion:^(Recipe *recipe, NSError *error) {
                 if (!error) {
+                    // update recipe
                     recipe.dirty = @NO;
+                    
+                    // remove local image file assuming the image update was successful (it would be useful to have some feedback on this,
+                    // though the server sends an empty response in this case)
+                    if (recipe.imageUrl.length > 0 && recipe.imageFileName.length > 0) {
+                        [recipe removeImage];
+                    }
+                    
+                    // save changes
                     [context save:nil];
                     DLog(@"recipe updated: %@", recipe.name);
                 } else {
@@ -132,11 +141,17 @@
     [self.manager GET:@"/recipes" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         // quit if response is not an array
         if ([responseObject isKindOfClass:[NSArray class]] == NO) {
+            DLog(@"** error: response is not an array (%@)", operation.request.URL);
             if (completion) {
                 completion([NSError errorWithDomain:@"HyperRecipes" code:-2 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"response is not an array (%@)", operation.request.URL]}]);
             }
             return;
         }
+        
+        // fetch current set of recipes (where serverId != 0) and remove the ones (at the end) which aren't on the server's list (i.e. deleted by another client)
+        NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Recipe"];
+        request.predicate = [NSPredicate predicateWithFormat:@"serverId != 0"];
+        NSMutableSet *recipesToBeDeleted = [NSMutableSet setWithArray:[context executeFetchRequest:request error:nil]];
         
         // process the response array
         for (NSDictionary *recipeDict in (NSArray*)responseObject) {
@@ -153,19 +168,24 @@
             request.predicate = [NSPredicate predicateWithFormat:@"serverId == %d", serverId];
             NSArray *result = [context executeFetchRequest:request error:nil];
             if (result.count > 0) {
+                // it's an existing recipe, find out if the server has a newer version
                 recipe = [result firstObject];
                 exisitingRecipe = YES;
                 serverIsNewer = ([recipe.updatedAt compare:recipeDict[@"updated_at"]] == NSOrderedAscending);
                 if (serverIsNewer) {
                     DLog(@"server -> local (%@, %@ < %@)", recipe.name, recipe.updatedAt, recipeDict[@"updated_at"]);
                 }
+                
+                // remove the recipe from the "to be deleted" array
+                [recipesToBeDeleted removeObject:recipe];
             } else {
+                // it's a new recipe
                 recipe = [Recipe recipeInContext:context];
                 recipe.serverId = recipeDict[@"id"];
                 DLog(@"downloading new recipe (%@)", recipeDict[@"name"]);
             }
             
-            // set/overwrite recipe's attributes (if recipe hasn't been downloaded or server has a newer version)
+            // set/overwrite recipe's attributes (if it's a new recipe or the server has a newer version)
             if (!exisitingRecipe || serverIsNewer) {
                 recipe.name = recipeDict[@"name"];
                 recipe.difficulty = [self numberFromObject:recipeDict[@"difficulty"]];
@@ -177,6 +197,14 @@
                 recipe.updatedAt = recipeDict[@"updated_at"];
             }
         }
+        
+        // remove recipes which weren't on the server's list and are from the server
+        for (Recipe *r in recipesToBeDeleted) {
+            DLog(@"recipe deleted: %@", r.name);
+            [context deleteObject:r];
+        }
+        
+        // save changes
         [context save:nil];
         if (completion) {
             completion(nil);
@@ -190,17 +218,21 @@
 }
 
 - (void)createRecipe:(Recipe*)recipe withCompletion:(void (^)(Recipe *recipe, NSNumber *serverId, NSString *imageUrl, NSError *error))completion {
+    // collect parameters
     NSString *name = (recipe.name.length > 255 ? [recipe.name substringToIndex:255] : recipe.name);
     NSString *desc = (recipe.desc.length > 255 ? [recipe.desc substringToIndex:255] : recipe.desc);
     NSString *instructions = (recipe.instructions.length > 255 ? [recipe.instructions substringToIndex:255] : recipe.instructions);
     NSDictionary *params = @{@"recipe": @{@"name": name, @"difficulty": recipe.difficulty, @"description": desc, @"favorite": recipe.favorite, @"instructions": instructions}};
+
+    // create and add operation to the queue
     [self.manager POST:@"recipes" parameters:params constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        DLog(@"formData = %@", formData);
+        // append local image to the request
         if (recipe.imageFileName) {
             [formData appendPartWithFileData:recipe.imageData name:@"recipe[photo]" fileName:recipe.imageFileName mimeType:@"image/jpeg"];
         }
     } success:^(AFHTTPRequestOperation *operation, id responseObject) {
         if ([responseObject isKindOfClass:[NSDictionary class]]) {
+            // extract and pass the server ID and the image URL to the completion handler
             NSDictionary *dict = (NSDictionary*)responseObject;
             NSNumber *serverId = dict[@"id"];
             NSString *imageUrl = [self stringFromObject:dict[@"photo"][@"url"]];
@@ -217,10 +249,35 @@
 }
 
 - (void)updateRecipe:(Recipe*)recipe withCompletion:(void (^)(Recipe *recipe, NSError *error))completion {
+    // collect parameters
     NSString *name = (recipe.name.length > 255 ? [recipe.name substringToIndex:255] : recipe.name);
     NSString *desc = (recipe.desc.length > 255 ? [recipe.desc substringToIndex:255] : recipe.desc);
     NSString *instructions = (recipe.instructions.length > 255 ? [recipe.instructions substringToIndex:255] : recipe.instructions);
     NSDictionary *params = @{@"recipe": @{@"name": name, @"difficulty": recipe.difficulty, @"description": desc, @"favorite": recipe.favorite, @"instructions": instructions}};
+
+    // create and add operation to the queue
+    // AFNetworking 2 doesn't seem to have a convenience method to create and run an AFHTTPRequestOperation which has a multipart PUT request
+    // below code is a modified version fo AFNetworking's source code; it's a bit messy, but I couldn't find a better way
+    NSString *URLString = [NSString stringWithFormat:@"/recipes/%d", [recipe.serverId integerValue]];
+    NSMutableURLRequest *request = [self.manager.requestSerializer multipartFormRequestWithMethod:@"PUT" URLString:[[NSURL URLWithString:URLString relativeToURL:self.manager.baseURL] absoluteString] parameters:params constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        // append local image to the request (if there is one)
+        if (recipe.imageFileName) {
+            [formData appendPartWithFileData:recipe.imageData name:@"recipe[photo]" fileName:recipe.imageFileName mimeType:@"image/jpeg"];
+        }
+    } error:nil];
+    AFHTTPRequestOperation *operation = [self.manager HTTPRequestOperationWithRequest:request success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        if (completion) {
+            completion(recipe, nil);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        DLog(@"** error: %@ (%@), HTTPBody = %@", [error localizedDescription], operation.request.URL, [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding]);
+        if (completion) {
+            completion(recipe, error);
+        }
+    }];
+    [self.manager.operationQueue addOperation:operation];
+
+#if 0
     [self.manager PUT:[NSString stringWithFormat:@"/recipes/%d", [recipe.serverId integerValue]] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         if (completion) {
             completion(recipe, nil);
@@ -231,6 +288,7 @@
             completion(recipe, error);
         }
     }];
+#endif
 }
 
 - (void)deleteRecipe:(Recipe*)recipe withCompletionHandler:(void (^)(Recipe *recipe, NSError *error))completion {

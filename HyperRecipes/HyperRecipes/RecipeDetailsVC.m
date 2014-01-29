@@ -12,7 +12,7 @@
 #import "Utils.h"
 #import <AFNetworking/UIImageView+AFNetworking.h>
 
-@interface RecipeDetailsVC () <UITextFieldDelegate, UITextViewDelegate, UIScrollViewDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate>
+@interface RecipeDetailsVC () <UITextFieldDelegate, UITextViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, UIActionSheetDelegate>
 @property (weak, nonatomic) IBOutlet UIButton *imageButton;
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -26,6 +26,7 @@
 @property (strong, nonatomic) UITextView *currentTextView;
 @property (strong, nonatomic) UIActionSheet *imageSourceActionSheet;
 @property (strong, nonatomic) UIImagePickerController *imagePicker;
+@property (strong, nonatomic) UIPopoverController *imagePickerPopover;
 @end
 
 #pragma mark - Constants
@@ -61,6 +62,7 @@ static const CGFloat TextViewHeight = 238.0;
     // image picker
     self.imagePicker = [[UIImagePickerController alloc] init];
     self.imagePicker.allowsEditing = YES;
+    self.imagePicker.delegate = self;
 }
 
 - (void)didReceiveMemoryWarning
@@ -73,10 +75,20 @@ static const CGFloat TextViewHeight = 238.0;
 
 - (IBAction)imageTapped:(id)sender {
     UIButton *button = (UIButton*)sender;
-    if (self.imageSourceActionSheet == nil) {
-        self.imageSourceActionSheet = [[UIActionSheet alloc] initWithTitle:@"Pick image from" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Photo Library", @"Camera", nil];
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        // present an action sheet so the user can pick the source if multiple source types are available
+        if (self.imageSourceActionSheet == nil) {
+            self.imageSourceActionSheet = [[UIActionSheet alloc] initWithTitle:@"Pick image from" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Photo Library", @"Camera", nil];
+        }
+        [self.imageSourceActionSheet showFromRect:button.bounds inView:button animated:YES];
+    } else {
+        // present the "Photo library" picker if camera isn't available (read: running in simulator)
+        if ([self.imagePickerPopover isPopoverVisible] == NO) {
+            self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+            self.imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:self.imagePicker];
+            [self.imagePickerPopover presentPopoverFromRect:button.bounds inView:button permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
+        }
     }
-    [self.imageSourceActionSheet showFromRect:button.bounds inView:button animated:YES];
 }
 
 - (void)doneTapped:(id)sender {
@@ -118,6 +130,13 @@ static const CGFloat TextViewHeight = 238.0;
 - (void)textViewDidBeginEditing:(UITextView *)textView {
     // adjust text view positions and visibility
     if (textView == self.descTextView) {
+        // remove placeholder text and reset color (if needed)
+        if (self.recipe.desc.length == 0) {
+            textView.text = nil;
+            textView.textColor = [UIColor lightGrayColor];
+        }
+
+        // animate to the right position
         [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             CGRect f = self.descTextView.frame;
             self.descTextView.frame = CGRectMake(f.origin.x, f.origin.y, f.size.width, TextViewHeight);
@@ -128,6 +147,13 @@ static const CGFloat TextViewHeight = 238.0;
             self.instructionsTextView.hidden = YES;
         }];
     } else if (textView == self.instructionsTextView) {
+        // remove placeholder text and reset color (if needed)
+        if (self.recipe.instructions.length == 0) {
+            textView.text = nil;
+            textView.textColor = [UIColor lightGrayColor];
+        }
+        
+        // animate to the right position
         [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             CGRect f = self.descTextView.frame;
             self.instructionsLabel.frame = self.descLabel.frame;
@@ -185,6 +211,9 @@ static const CGFloat TextViewHeight = 238.0;
     
     // reset
     self.currentTextView = nil;
+    
+    // reload to add textview placeholders again (if needed)
+    [self reloadData];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -198,8 +227,12 @@ static const CGFloat TextViewHeight = 238.0;
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Camera"]) {
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:self.imagePicker animated:YES completion:nil];
     } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Photo Library"]) {
+        // if self.imagePicker was permenently assigned to self.imagePickerPopover, then trying to present it modally (camera) would cause an exception
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        self.imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:self.imagePicker];
+        [self.imagePickerPopover presentPopoverFromRect:self.imageButton.bounds inView:self.imageButton permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
     }
 }
 
@@ -220,6 +253,30 @@ static const CGFloat TextViewHeight = 238.0;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
 }
 
+#pragma mark - Image picker delegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    // overwrite the current image with the selected one
+    UIImage *image = info[UIImagePickerControllerEditedImage];
+    if (image == nil) {
+        image = info[UIImagePickerControllerOriginalImage];
+    }
+    [self.recipe setImage:image];
+    [self.recipe touch];
+    [AppDelegate saveContext];
+    
+    // dismiss the popover or the modal
+    if ([self.imagePickerPopover isPopoverVisible]) {
+        [self.imagePickerPopover dismissPopoverAnimated:YES];
+        self.imagePickerPopover = nil;
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    
+    // update the UI
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
+}
+
 #pragma mark - Notifications
 
 - (void)recipeDidChange:(NSNotification*)notification {
@@ -232,19 +289,43 @@ static const CGFloat TextViewHeight = 238.0;
 
 - (void)reloadData {
     if (self.recipe) {
-        // load values
+        // name
         self.nameTextField.text = self.recipe.name;
-        if (self.recipe.imageUrl.length > 0) {
-            [self.imageView setImageWithURL:[NSURL URLWithString:self.recipe.imageUrl] placeholderImage:[UIImage imageNamed:@"image_placeholder.png"]];
-        } else if (self.recipe.imageFileName.length > 0) {
+        
+        // image (local image has a precenedence over the remote image)
+        if (self.recipe.imageFileName.length > 0) {
             [self.imageView setImage:self.recipe.image];
+        } else if (self.recipe.imageUrl.length > 0) {
+            [self.imageView setImageWithURL:[NSURL URLWithString:self.recipe.imageUrl] placeholderImage:[UIImage imageNamed:@"image_placeholder.png"]];
         } else {
             [self.imageView setImage:nil];
         }
-        self.descTextView.text = self.recipe.desc;
-        self.instructionsTextView.text = self.recipe.instructions;
+        
+        // description
+        if (self.recipe.desc.length > 0) {
+            self.descTextView.text = self.recipe.desc;
+            self.descTextView.textColor = [UIColor lightGrayColor];
+        } else {
+            self.descTextView.text = @"Add description";
+            self.descTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color
+        }
+        
+        // instructions
+        if (self.recipe.instructions.length > 0) {
+            self.instructionsTextView.text = self.recipe.instructions;
+            self.instructionsTextView.textColor = [UIColor lightGrayColor];
+        } else {
+            self.instructionsTextView.text = @"Add instructions";
+            self.instructionsTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color
+        }
+        
+        // adjust text views' height and position according to their content
+        [self layoutTextViewsWithTextViewBeingEdited:nil];
+        
+        // set favorite button
+        self.navigationItem.leftBarButtonItem = ([self.recipe.favorite boolValue] ? self.removeFromFavoritesButton : self.addToFavoritesButton);
 
-        // adjust visibility
+        // show all views (unhide)
         self.imageButton.hidden = NO;
         self.nameTextField.hidden = NO;
         self.imageView.hidden = NO;
@@ -252,14 +333,8 @@ static const CGFloat TextViewHeight = 238.0;
         self.descTextView.hidden = NO;
         self.instructionsLabel.hidden = NO;
         self.instructionsTextView.hidden = NO;
-        
-        // adjust text views' height and position according to their content
-        [self layoutTextViewsWithTextViewBeingEdited:nil];
-        
-        // set favorite button
-        self.navigationItem.leftBarButtonItem = ([self.recipe.favorite boolValue] ? self.removeFromFavoritesButton : self.addToFavoritesButton);
     } else {
-        // adjust visibility
+        // hide all views (make it an empty view)
         self.imageButton.hidden = YES;
         self.nameTextField.hidden = YES;
         self.imageView.hidden = YES;
