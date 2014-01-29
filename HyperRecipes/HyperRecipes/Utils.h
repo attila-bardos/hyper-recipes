@@ -1,9 +1,9 @@
 //
 //  Utils.h
-//  Chili
+//  HyperRecipes
 //
-//  Created by Attila Bárdos on 12/19/13.
-//  Copyright (c) 2013 Delta Velorum Kft. All rights reserved.
+//  Created by Attila Bárdos on 01/26/14.
+//  Copyright (c) 2014 Delta Velorum Kft. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -16,7 +16,5 @@
 #else
 #define DLog(...)
 #endif
-
-+ (RecipeDetailsVC*)detailsVC;
 
 @end

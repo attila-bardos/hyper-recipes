@@ -14,6 +14,9 @@
 + (Recipe*)recipeInContext:(NSManagedObjectContext*)context {
     Recipe *recipe = [NSEntityDescription insertNewObjectForEntityForName:@"Recipe" inManagedObjectContext:context];
     
+    recipe.name = @"";
+    recipe.desc = @"";
+    recipe.instructions = @"";
     recipe.difficulty = @(1);
     recipe.favorite = @NO;
     recipe.deleted = @NO;

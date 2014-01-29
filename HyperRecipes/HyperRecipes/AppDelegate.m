@@ -11,6 +11,7 @@
 #import "Utils.h"
 #import "RecipeListVC.h"
 #import "Recipe+Helper.h"
+#import <AFNetworking/AFNetworkActivityIndicatorManager.h>
 
 @implementation AppDelegate
 
@@ -19,37 +20,29 @@
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // make RecipeDetailsVC the delegate of RecipeListVC (so it updates itself when selection changes)
+    // make RecipeDetailsVC the delegate of RecipeListVC (so it updates itself when the selection changes)
     UISplitViewController *splitVC = (UISplitViewController*)self.window.rootViewController;
     RecipeListVC *recipeListVC = (RecipeListVC*)[((UINavigationController*)[splitVC.viewControllers firstObject]).viewControllers firstObject];
     RecipeDetailsVC *recipeDetailsVC = (RecipeDetailsVC*)[((UINavigationController*)[splitVC.viewControllers objectAtIndex:1]).viewControllers firstObject];
     recipeListVC.delegate = recipeDetailsVC;
     
-    // add sample content
-#if 0
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sampleContentCreated"] == NO) {
-        [self createSampleContent];
-        [self.managedObjectContext save:nil];
-    }
-#endif
+    // enable network activity indicator management by AFNetwork
+    [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
     
     return YES;
 }
 							
-- (void)applicationWillResignActive:(UIApplication *)application
-{
+- (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
+- (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
+- (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
 }
 
@@ -153,32 +146,6 @@
 // Returns the URL to the application's Documents directory.
 - (NSURL *)applicationDocumentsDirectory {
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-}
-
-#pragma mark - Sample content creation
-
-- (void)createSampleContent {
-    // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
-    Recipe *recipe1 = [Recipe recipeInContext:self.managedObjectContext];
-    recipe1.name = @"Steak & guacamole wrap";
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"];
-    DLog(@"path = %@", path);
-    recipe1.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe1.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe1.imageUrl = [[[NSBundle mainBundle] URLForResource:@"sample_1_image" withExtension:@"jpg"] absoluteString];
-    DLog(@"recipe1 = %@", recipe1);
-    
-    // http://www.jamieoliver.com/recipes/beef-recipes/aussie-humble-pie
-    Recipe *recipe2 = [Recipe recipeInContext:self.managedObjectContext];
-    recipe2.name = @"Aussie humble pie";
-    recipe2.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe2.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe2.imageUrl = [[[NSBundle mainBundle] URLForResource:@"sample_2_image" withExtension:@"jpg"] absoluteString];
-    DLog(@"recipe2 = %@", recipe2);
-
-    // make sure it doesn't get created twice
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"sampleContentCreated"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end

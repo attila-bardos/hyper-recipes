@@ -88,6 +88,9 @@
         // update UI
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.delegate recipeList:self didSelectRecipe:nil];
+        
+        // run a silent sync
+        [self performSelectorInBackground:@selector(syncAndReload) withObject:nil];
     }
 }
 
@@ -130,24 +133,18 @@
 }
 
 - (IBAction)addTapped:(id)sender {
-#if 0
-    // create a new recipe
-    Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
-    recipe.name = [[NSDate date] description];
+    // try to create some yummy recipes if you don't have them yet (this is for demo purposes only, of course)
+    Recipe *recipe = [self createSampleContent];
+    
+    // create a new, empty recipe if we already have both sample recipes
+    if (recipe == nil) {
+        recipe = [Recipe recipeInContext:[AppDelegate context]];
+        recipe.name = @"Untitled recipe";
+    }
+    
+    // save changes
     [AppDelegate saveContext];
-#endif
-
-    // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
-    Recipe *recipe = [Recipe recipeInContext:[AppDelegate context]];
-    recipe.name = @"Aussie humble pie";
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"];
-    DLog(@"path = %@", path);
-    recipe.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    recipe.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
-    UIImage *image = [UIImage imageNamed:@"sample_2_image.jpg"];
-    [recipe setImage:image];
-    [AppDelegate saveContext];
-
+    
     // update model
     [self.recipes insertObject:recipe atIndex:0];
     
@@ -155,6 +152,9 @@
     [self.tableView reloadData];
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
     [self.delegate recipeList:self didSelectRecipe:recipe];
+    
+    // run a silent sync
+    [self performSelectorInBackground:@selector(syncAndReload) withObject:nil];
 }
 
 #pragma mark - Notifications
@@ -190,7 +190,7 @@
     NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
     Recipe *currentRecipe = (indexPath ? [self.recipes objectAtIndex:indexPath.row] : nil);
 
-    // fetch recipes
+    // fetch recipes (either all of them or the ones containing the serach string in their names)
     NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Recipe"];
     request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCompare:)]];
@@ -201,7 +201,7 @@
     }
     self.recipes = [NSMutableArray arrayWithArray:[context executeFetchRequest:request error:nil]];
     
-    // reload table view (performing on the main thread assures this method can be called on a background thread, too)
+    // reload table view (performing on the main thread assures reloadData can be called on a background thread, too)
     [self.tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
     
     // restore selection if possible
@@ -223,7 +223,7 @@
         }
     }
     if (!selectionRestored) {
-        // update details VC if selection has changed
+        // this is going to clear the RecipeDetailsVC
         [self.delegate recipeList:self didSelectRecipe:nil];
     }
 }
@@ -235,6 +235,52 @@
 - (void)reloadAndSelectRowAtIndexPath:(NSIndexPath*)indexPath {
     [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self.tableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
+}
+
+- (Recipe*)createSampleContent {
+    NSManagedObjectContext *context = [AppDelegate context];
+
+    // check if first sample recipe exists and create it if not
+    BOOL foundRecipe1 = NO;
+    NSString *recipeName1 = @"Steak & guacamole wrap";
+    for (Recipe *r in self.recipes) {
+        if ([r.name isEqualToString:recipeName1]) {
+            foundRecipe1 = YES;
+            break;
+        }
+    }
+    if (!foundRecipe1) {
+        // http://www.jamieoliver.com/recipes/beef-recipes/steak-and-guacamole-wrap
+        Recipe *recipe1 = [Recipe recipeInContext:context];
+        recipe1.name = recipeName1;
+        recipe1.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+        recipe1.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_1_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+        [recipe1 setImage:[UIImage imageNamed:@"sample_1_image.jpg"]];
+        return recipe1;
+    }
+    
+    
+    // check if first sample recipe exists and create it if not
+    BOOL foundRecipe2 = NO;
+    NSString *recipeName2 = @"Aussie humble pie";
+    for (Recipe *r in self.recipes) {
+        if ([r.name isEqualToString:recipeName2]) {
+            foundRecipe2 = YES;
+            break;
+        }
+    }
+    if (!foundRecipe2) {
+        // http://www.jamieoliver.com/recipes/beef-recipes/aussie-humble-pie
+        Recipe *recipe2 = [Recipe recipeInContext:context];
+        recipe2.name = @"Aussie humble pie";
+        recipe2.desc = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_desc" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+        recipe2.instructions = [NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"sample_2_instructions" ofType:@"txt"] encoding:NSUTF8StringEncoding error:nil];
+        [recipe2 setImage:[UIImage imageNamed:@"sample_2_image.jpg"]];
+        return recipe2;
+    }
+    
+    // both samples found, don't create anything new
+    return nil;
 }
 
 @end

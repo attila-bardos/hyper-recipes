@@ -65,8 +65,7 @@ static const CGFloat TextViewHeight = 238.0;
     self.imagePicker.delegate = self;
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
@@ -120,15 +119,12 @@ static const CGFloat TextViewHeight = 238.0;
 - (void)recipeList:(RecipeListVC *)recipeListVC didSelectRecipe:(Recipe *)recipe {
     self.recipe = recipe;
     [self performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-    if (recipe) {
-        DLog(@"recipe: %@", recipe);
-    }
 }
 
 #pragma mark - Text view delegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-    // adjust text view positions and visibility
+    // adjust the text view
     if (textView == self.descTextView) {
         // remove placeholder text and reset color (if needed)
         if (self.recipe.desc.length == 0) {
@@ -169,7 +165,7 @@ static const CGFloat TextViewHeight = 238.0;
     // add "Done" button
     self.navigationItem.rightBarButtonItem = self.doneButton;
     
-    // store the text view to resgining from first responder when done
+    // store the text view to resgining from first responder state when done
     self.currentTextView = textView;
 }
 
@@ -217,7 +213,7 @@ static const CGFloat TextViewHeight = 238.0;
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
-    // make sure the user can't enter text longer than the server's limit
+    // make sure the user can't enter text longer than the server's known limit
     NSString *updatedText = [textView.text stringByReplacingCharactersInRange:range withString:text];
     return (updatedText.length < 255);
 }
@@ -226,10 +222,11 @@ static const CGFloat TextViewHeight = 238.0;
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Camera"]) {
+        // camera needs to be displayed full screen
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
         [self presentViewController:self.imagePicker animated:YES completion:nil];
     } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Photo Library"]) {
-        // if self.imagePicker was permenently assigned to self.imagePickerPopover, then trying to present it modally (camera) would cause an exception
+        // if self.imagePicker was permenently assigned to self.imagePickerPopover, then trying to present it modally (camera; see above) would cause an exception
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
         self.imagePickerPopover = [[UIPopoverController alloc] initWithContentViewController:self.imagePicker];
         [self.imagePickerPopover presentPopoverFromRect:self.imageButton.bounds inView:self.imageButton permittedArrowDirections:UIPopoverArrowDirectionLeft animated:YES];
@@ -251,12 +248,17 @@ static const CGFloat TextViewHeight = 238.0;
     
     // let others know about the change
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
+    
+    // a nice little easter egg :)
+    if ([textField.text isEqualToString:@"dragons and unicorns"]) {
+        [self performSelectorInBackground:@selector(haveSomeFun) withObject:nil];
+    }
 }
 
 #pragma mark - Image picker delegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    // overwrite the current image with the selected one
+    // overwrite the current local image with the selected one
     UIImage *image = info[UIImagePickerControllerEditedImage];
     if (image == nil) {
         image = info[UIImagePickerControllerOriginalImage];
@@ -293,7 +295,7 @@ static const CGFloat TextViewHeight = 238.0;
         // name
         self.nameTextField.text = self.recipe.name;
         
-        // image (local image has a precenedence over the remote image)
+        // image (local image has a precenedence over the remote image because after changing it [but before sync has completed] the local one is the newer one)
         if (self.recipe.imageFileName.length > 0) {
             [self.imageView setImage:self.recipe.image];
         } else if (self.recipe.imageUrl.length > 0) {
@@ -308,7 +310,7 @@ static const CGFloat TextViewHeight = 238.0;
             self.descTextView.textColor = [UIColor lightGrayColor];
         } else {
             self.descTextView.text = @"Add description";
-            self.descTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color
+            self.descTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color (make look like a button)
         }
         
         // instructions
@@ -317,7 +319,7 @@ static const CGFloat TextViewHeight = 238.0;
             self.instructionsTextView.textColor = [UIColor lightGrayColor];
         } else {
             self.instructionsTextView.text = @"Add instructions";
-            self.instructionsTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color
+            self.instructionsTextView.textColor = ((AppDelegate*)[UIApplication sharedApplication].delegate).window.tintColor;      // global tint color (make look like a button)
         }
         
         // adjust text views' height and position according to their content
@@ -372,6 +374,14 @@ static const CGFloat TextViewHeight = 238.0;
     [textView setAttributedText:text];
     CGSize size = [textView sizeThatFits:CGSizeMake(width, FLT_MAX)];
     return size.height;
+}
+
+- (void)haveSomeFun {
+    NSString *message = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"http://www.velorum.hu/downloads/easter_egg.txt"] encoding:NSUTF8StringEncoding error:nil];
+    if (message.length > 0) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Congratulations" message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:@"I can't wait", nil];
+        [alert show];
+    }
 }
 
 @end
