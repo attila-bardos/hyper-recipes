@@ -25,6 +25,9 @@
         sharedInstance = [[HyperClient alloc] init];
         sharedInstance.manager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:[NSURL URLWithString:@"http://hyper-recipes.herokuapp.com"]];
         sharedInstance.manager.requestSerializer = [AFJSONRequestSerializer serializerWithWritingOptions:0];
+        
+        // notification
+        [[NSNotificationCenter defaultCenter] addObserver:sharedInstance selector:@selector(recipeDidChange:) name:@"RecipeDidChange" object:nil];
     }
     return sharedInstance;
 }
@@ -195,6 +198,11 @@
                 recipe.imageUrl = [self stringFromObject:recipeDict[@"photo"][@"url"]];
                 recipe.dirty = @NO;
                 recipe.updatedAt = recipeDict[@"updated_at"];
+                
+                // notify others about the update of an existing recipe
+                if (exisitingRecipe && serverIsNewer) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:recipe];
+                }
             }
         }
         
@@ -276,19 +284,6 @@
         }
     }];
     [self.manager.operationQueue addOperation:operation];
-
-#if 0
-    [self.manager PUT:[NSString stringWithFormat:@"/recipes/%d", [recipe.serverId integerValue]] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        if (completion) {
-            completion(recipe, nil);
-        }
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        DLog(@"** error: %@ (%@), HTTPBody = %@", [error localizedDescription], operation.request.URL, [[NSString alloc] initWithData:operation.request.HTTPBody encoding:NSUTF8StringEncoding]);
-        if (completion) {
-            completion(recipe, error);
-        }
-    }];
-#endif
 }
 
 - (void)deleteRecipe:(Recipe*)recipe withCompletionHandler:(void (^)(Recipe *recipe, NSError *error))completion {
@@ -308,6 +303,17 @@
 - (void)backgroundThreadDidSave:(NSNotification*)notification {
     // merge changes made in the background thread's context into main thread's context
     [((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext mergeChangesFromContextDidSaveNotification:notification];
+}
+
+#pragma mark - Notifications
+
+- (void)recipeDidChange:(NSNotification*)notification {
+    // run a silent sync when a recipe has changed
+    [self syncWithCompletionHandler:^(NSError *error) {
+        if (error) {
+            DLog(@"** error: %@ (when syncing silently)", [error localizedDescription]);
+        }
+    }];
 }
 
 #pragma mark - Other methods

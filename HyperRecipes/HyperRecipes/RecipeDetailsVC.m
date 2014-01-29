@@ -212,8 +212,8 @@ static const CGFloat TextViewHeight = 238.0;
     // reset
     self.currentTextView = nil;
     
-    // reload to add textview placeholders again (if needed)
-    [self reloadData];
+    // let others know about the change (which will cause a reload, too)
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"RecipeDidChange" object:self.recipe];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
@@ -280,7 +280,8 @@ static const CGFloat TextViewHeight = 238.0;
 #pragma mark - Notifications
 
 - (void)recipeDidChange:(NSNotification*)notification {
-    if (self.recipe == (Recipe*)notification.object) {
+    Recipe *recipe = (Recipe*)notification.object;
+    if (self.recipe == recipe) {
         [self reloadData];
     }
 }

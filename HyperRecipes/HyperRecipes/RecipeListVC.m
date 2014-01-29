@@ -14,8 +14,11 @@
 #import "HyperClient.h"
 #import "RecipeCell.h"
 
-@interface RecipeListVC ()
+@interface RecipeListVC () <UISearchBarDelegate>
 @property (strong, nonatomic) NSMutableArray *recipes;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (strong, nonatomic) UIBarButtonItem *leftBarButtonItem;
+@property (strong, nonatomic) UIBarButtonItem *rightBarButtonItem;
 @end
 
 @implementation RecipeListVC
@@ -34,6 +37,13 @@
     
     // notification
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recipeDidChange:) name:@"RecipeDidChange" object:nil];
+    
+    // seacrh bar
+    self.searchBar.delegate = self;
+    
+    // backup left and right bar button items (they will be temporarily removed when searching)
+    self.leftBarButtonItem = self.navigationItem.leftBarButtonItem;
+    self.rightBarButtonItem = self.navigationItem.rightBarButtonItem;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -85,6 +95,32 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.delegate recipeList:self didSelectRecipe:[self.recipes objectAtIndex:indexPath.row]];
+}
+
+#pragma mark - Search bar delegate
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
+    searchBar.showsCancelButton = YES;
+    
+    // "Refresh" and "Add" will be hidden while search is active
+    self.navigationItem.leftBarButtonItem = nil;
+    self.navigationItem.rightBarButtonItem = nil;
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    [self reloadData];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    // restore original search and content state
+    self.searchBar.showsCancelButton = NO;
+    self.searchBar.text = nil;
+    [self.searchBar resignFirstResponder];
+    [self reloadData];
+    
+    // restore "Refresh" and "Add" buttons
+    self.navigationItem.leftBarButtonItem = self.leftBarButtonItem;
+    self.navigationItem.rightBarButtonItem = self.rightBarButtonItem;
 }
 
 #pragma mark - Actions
@@ -158,11 +194,14 @@
     NSManagedObjectContext *context = ((AppDelegate*)[UIApplication sharedApplication].delegate).managedObjectContext;
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Recipe"];
     request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCompare:)]];
-    request.predicate = [NSPredicate predicateWithFormat:@"deleted = %@", @NO];
+    if (self.searchBar.text.length == 0) {
+        request.predicate = [NSPredicate predicateWithFormat:@"deleted == NO"];
+    } else {
+        request.predicate = [NSPredicate predicateWithFormat:@"deleted == NO && name CONTAINS[cd] %@", self.searchBar.text];
+    }
     self.recipes = [NSMutableArray arrayWithArray:[context executeFetchRequest:request error:nil]];
     
-    // reload table view (performing on the main thread assures this method can be called on a
-    // background thread, too)
+    // reload table view (performing on the main thread assures this method can be called on a background thread, too)
     [self.tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
     
     // restore selection if possible
@@ -170,9 +209,14 @@
     if (currentRecipe) {
         NSInteger index = 0;
         for (Recipe *r in self.recipes) {
-            if (([r.serverId integerValue] > 0 && [r.serverId isEqualToNumber:currentRecipe.serverId]) || [r.name isEqualToString:currentRecipe.name]) {
+            if (([r.serverId integerValue] > 0 && [r.serverId isEqualToNumber:currentRecipe.serverId]) || ([r.serverId integerValue] == 0 && [r.name isEqualToString:currentRecipe.name])) {
                 [self performSelectorOnMainThread:@selector(selectRowAtIndexPath:) withObject:[NSIndexPath indexPathForRow:index inSection:0] waitUntilDone:NO];
                 selectionRestored = YES;
+                
+                // force an update or the recipe in the details view in case it has changed during a sync
+                [self.delegate recipeList:self didSelectRecipe:r];
+                
+                // quit searching
                 break;
             }
             ++index;
